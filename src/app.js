@@ -59,19 +59,34 @@ app.delete("/user",async (req,res)=>{
   }
   }
   catch(err){
-  res.status(404).send("Something went wrong")
+  res.status(404).send("Something went wrong " + err.message)
   }
 });
 
-app.patch("/user",async (req,res)=>{
-  const userId = req.body.userId;
-  const data = req.body;
+// app.patch("/user",async (req,res)=>{
+//   const userId = req.body.userId;
+//   const data = req.body;
+
+  app.patch("/user/:userId",async (req,res)=>{
+    const userId = req.params?.userId;
+    const data = req.body;
+
   try{
-  const user = await User.findByIdAndUpdate({_id: userId},data);
+
+    const Allowed_Update=["password","gender","age","photoUrl","about","skills"];
+    const isUpdatedAllowed = Object.keys(data).every((k)=>Allowed_Update.includes(k));
+    if(!isUpdatedAllowed){
+      throw new Error("Updates not allowed")
+    }
+    if(data.length && data?.skills.length > 10){
+      throw new Error("skills cannot be more than 10")
+    }
+
+  const user = await User.findByIdAndUpdate({_id: userId},data,{returnDocument:"after",runValidators:true});
   res.send("User updated succesfully");
   }
   catch(err){
-  res.status(404).send("Something went wrong")
+  res.status(404).send("Something went wrong " + err.message)
   }
 })
 

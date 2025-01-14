@@ -1,4 +1,5 @@
 const mongoose = require ('mongoose');
+const validator = require("validator");
 
 const userSchema= new mongoose.Schema({
     firstName:{
@@ -18,7 +19,12 @@ const userSchema= new mongoose.Schema({
         unique:true,
         maxLength:25,
         lowercase:true,
-        trim:true
+        trim:true,
+        validate(value){
+        if(!validator.isEmail(value)){
+            throw new Error("Email not valid " + value);
+        }
+        }
     },
     password:{
         type:String,
@@ -40,7 +46,12 @@ const userSchema= new mongoose.Schema({
     },
     photoUrl:{
         type:String,
-        default:"https://cdn2.iconfinder.com/data/icons/business-hr-and-recruitment/100/account_blank_face_dummy_human_mannequin_profile_user_-512.png"
+        default:"https://cdn2.iconfinder.com/data/icons/business-hr-and-recruitment/100/account_blank_face_dummy_human_mannequin_profile_user_-512.png",
+        validate(value){
+            if(!validator.isURL(value)){
+                throw new Error("Photo not valid " + value);
+            }
+            }
     },
     about:{
     type:String,
